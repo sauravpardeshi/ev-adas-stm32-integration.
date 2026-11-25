@@ -1,0 +1,50 @@
+id,level,req,description,expected,measured,result
+TC-U01,Unit,"R06","CRC-8 (poly 0x07) check value for "123456789"","0xF4","0xF4",PASS
+TC-U02,Unit,"R06","Ring buffer: full rejection, FIFO order, wrap-around","all true","ok=1 full_rejected=1",PASS
+TC-U03,Unit,"R03","MPU-6050 init wakes device and selects +/-4 g","rc=0 PWR=0x00 CFG=0x08","rc=0 PWR=0x00 CFG=0x08",PASS
+TC-U04,Unit,"R03","MPU-6050 raw->mg conversion (ax=-800 mg, az=1000 mg)","error <= 20 mg","ax=-799 az=1000 err=1 mg",PASS
+TC-U05,Unit,"R07","MPU-6050 init rejects wrong WHO_AM_I","rc=-2","rc=-2",PASS
+TC-U06,Unit,"R07","Transient I2C NACK is retried transparently","rc=0, 1 retry","rc=0 retries=1",PASS
+TC-U07,Unit,"R02","SoC look-up table interpolation and clamping (8 points)","100,0,40,47,10,85,100,0","100,0,40,47,10,85,100,0,",PASS
+TC-U08,Unit,"R02","Battery ADC->pack mV conversion error over 12-16.8 V","<= 1.5 %","worst 0.07 %",PASS
+TC-U09,Unit,"R01","Speed ADC->deci-km/h at 0, mid, full scale","0, 600+/-10, 1200","0, 600, 1200",PASS
+TC-U10,Unit,"R04","median-of-3 outlier rejection (5 vectors)","all true","ok=1",PASS
+TC-U11,Unit,"R04","HC-SR04 echo width -> mm (5830 us = 1000 mm)","1000 +/- 10 mm","1005 mm",PASS
+TC-U12,Unit,"R04","FCW classification table (ADV/WARN/CRIT, min-closing, speed gate, proximity)","9/9 correct","9/9",PASS
+TC-U13,Unit,"R04","ADAS debounce: glitch ignored, 2-sample escalate, 4-sample de-escalate","all true","ok=1",PASS
+TC-U14,Unit,"R05","MAX7219 init registers (shutdown, decode, scan limit, intensity, test)","01,FF,07,08,00 / 0 SPI errors","01,FF,07,08,00 / 0 errs",PASS
+TC-U15,Unit,"R05","Display digit formatting (zero suppression, E-codes, P/- symbols)","5/5 strings match","[120 1003][  0   50][  0 E020][  0   5P][ 45  64-]",PASS
+TC-U16,Unit,"R05","SPI framing: every frame = CS low, 16 clocks, CS high (checker also catches a violation)","0 errs in normal use; violation detected","errs=0 frames=26 after_violation=1",PASS
+TC-U17,Unit,"R06","Telemetry frame: 7 fields, valid CRC-8, CRLF terminated",">=2 frames, 7 fields, 0 invalid","frames=3 fields=7 invalid=0 last=[EVD,2,400,69,-1,-1,0,0000]",PASS
+TC-U18,Unit,"R06","Command parser: STATUS?, unknown command, 44-char overflow line, HELP with CRLF","1,1,1,1","1,1,1,1",PASS
+TC-U19,Unit,"R07","Fault priority -> display code (E01 > E02 > E03 > E04)","all true","ok=1",PASS
+TC-U20,Unit,"R06","Event log keeps the newest 16 of 20 entries in order","count=16 oldest=4 newest=19","count=16 oldest=4 newest=19",PASS
+TC-U21,Unit,"R04","Alpha-beta tracker coasts through an 800+ mm outlier (gate 300 mm)","coasts within 25 mm of prediction","before=2550 after=2500 (pred 2500)",PASS
+TC-U22,Unit,"R04","Tracker: velocity converges (1000+/-100 mm/s), accepts a persistent jump, drops target on persistent no-echo","all true","v=0 valid_after_far=0",PASS
+TC-I01,Integ,"R03","IMU->ADAS: -0.8 g pulse yields one logged BRAKE event within 100 ms","1 event, latency <= 100 ms","events=1 latency=23 ms arg=799 mg",PASS
+TC-I02,Integ,"R03,R05,R06","Impact: detect<=100 ms -> latch -> buzzer+LEDs -> display 'P' -> telemetry flag -> RST clears","all true","lat=3 ms chain=1 display=[ 40  69P] flags=0x1 cleared=1",PASS
+TC-I03,Integ,"R04","Range->ADAS->alert: ADV/WARN/CRIT LEDs follow TTC thresholds within 250 ms","3 latencies in [0,250] ms, buzzer on","ADV 84 ms, WARN 84 ms, CRIT 74 ms, display=[ 40  693]",PASS
+TC-I04,Integ,"R01,R04","Speed gate: parked (0 km/h) -> no ADV/WARN, proximity CRIT only at <=150 mm","0 ADV, 0 WARN, CRIT within 250 ms of 150 mm","ADV=0 WARN=0 CRIT latency=74 ms",PASS
+TC-I05,Integ,"R02,R05,R06","Battery SoC identical in shared state, 7-seg display and UART telemetry (15.2 V pack)","equal across 3 views, 60..80 %","state=69 display=69 telemetry=69",PASS
+TC-I06,Integ,"R07","Stuck HC-SR04: ADAS UNAVAILABLE + 'E02' <=400 ms, LED blink, telemetry fault bit, auto-recover <=500 ms","levels/codes <=400 ms, recover <=500 ms","UNAVAIL 170 ms, E02 210 ms, blink=1, tlm level=4 flags=0x20, recover 90 ms",PASS
+TC-I07,Integ,"R07","IMU NACK: E01 <=200 ms, FCW still alerts (graceful degradation), IMU auto-recovers <=1 s","detect<=200, FCW ok, recover<=1000 ms","fault 50 ms, E01 110 ms, FCW=1, recover 250 ms",PASS
+TC-I08,Integ,"R07,R08","Stuck I2C bus: 9-clock recovery restores IMU with no fault and no scheduler miss","no fault, >=1 recovery, >=20 samples/0.5 s, 0 misses","faults=0x0 recoveries=1 samples=25 misses=0",PASS
+TC-I09,Integ,"R07","Frozen IMU data (25 identical frames) flagged <=750 ms, cleared by device reset+re-init <=1 s","detect<=750, recover<=1000 ms","detect 490 ms, recover 500 ms",PASS
+TC-I10,Integ,"R06,R08","UART under command load: 3x LOG? + STATUS? with telemetry: no drops, no partial frames, no deadline miss","0 drops, 0 invalid, 3 LOG dumps, 0 misses","drops=0 invalid=0 valid=30 logdumps=3 misses=0",PASS
+TC-I11,Integ,"R05","Corrupted MAX7219 registers (EMI) are restored by periodic refresh <= 2.1 s","healed <= 2100 ms","corrupted=1 healed after 1510 ms, shows [ 60  690]",PASS
+TC-I12,Integ,"R07","IMU unplug/replug: fault <=200 ms, hot-plug re-init <=1 s, samples resume","detect<=200, recover<=1000, samples resume","detect 50 ms, recover 50 ms, samples +10",PASS
+TC-I13,Integ,"R02,R07","Battery sense line open: E03 within 500 ms (3 bad samples), recovers when restored","E03<=500 ms, recover<=500 ms","E03 after 210 ms, recovered after 10 ms",PASS
+TC-I14,Integ,"R06,R07","STATUS? reply matches internal state (version, level, fault mask)","6 fields, equal to state, F_BATT set","[ACK,STATUS,1.0.0,0,0,4,0,0] state level=0 faults=0x4",PASS
+TC-S01,System,"R03,R04,R05,R06","Emergency braking: ADV->WARN->CRIT in order, buzzer+display in CRIT, brake + driver-reaction logged, returns to CLEAR","all true","order=1 buzzer=1 display=1 brake=1 reaction=1150 ms clear=1 tlm_l3=1 invalid=0 gaps=0 misses=0",PASS
+TC-S02,System,"R04,R06,R08","Nominal 60 s drive, no obstacle: zero events/alerts, 5 Hz telemetry +/-5 %, no gaps, no misses","1 event (boot), 285..315 frames","events=1 frames=300 gaps=0 invalid=0 misses=0 faults=0x0",PASS
+TC-S03,System,"R04","False-alarm test: following at constant 800 mm gap, 3 mm noise, 1 % spikes, 2 % lost echoes, 3 x 60 s","0 alerts, 0 events","alerts=0 events=0",PASS
+TC-S04,System,"R03,R06","Collision at 150 mm: crash latched <=100 ms, held 2.5 s, evidence readable via LOG?, cleared by RST","all true","lat=10 ms latched=1 held=1 log_entries=7 impact_logged=1 cleared=1",PASS
+TC-S05,System,"R02","Battery discharge 16.4->12.0 V with 100 mV load-sag pulses: LOW and CRIT each raised exactly once (no chatter), final SoC 0 %","1 LOW, 1 CRIT, SoC=0","LOW@138s (SoC 19%) CRIT@158s (SoC 9%) events 1/1 final SoC 0%",PASS
+TC-S06,System,"R07,R08","Fault storm (IMU + range + battery sense) 1.6 s: all 3 flagged, E01 shown, UART alive, no WDT/misses; full recovery <=2 s after removal","all true","storm=1 E01=1 frames=8 invalid=0 misses=0 wdt=0 recovered=1 display=[ 40  690]",PASS
+TC-S07,System,"R09","Watchdog: 300 ms task hang -> reset, boot cause WDT logged, display & telemetry back within 400 ms, no reset in normal 3 s run","0 resets normal, 1 reset after hang, cause=1","normal_resets=0 hang_resets=1 boot_cause=1 frames_after=2 display=[ 40  690]",PASS
+TC-S08,System,"R06,R08","10-minute soak: 0 deadline misses, 0 TX drops, 0 WDT resets, 3000 telemetry frames +/-1 %, no sequence gaps, no faults","all true","misses=0 drops=0 wdt=0 frames=3000 gaps=0 invalid=0 faults=0x0",PASS
+TC-S09,System,"R08","Start jitter of 10 ms safety tasks (adas, alert, range, cli) <= 2 ms over the soak","<= 2000 us","max jitter 793 us (all tasks 793 us)",PASS
+TC-S10,System,"R08","Peripheral-blocking CPU time (I2C+SPI+ADC+range[+UART if polled]) <= 5 % of wall time","<= 5 %","2.00 % (I2C 1.91, SPI 0.014, ADC 0.060, range 0.020)",PASS
+TC-S11,System,"R06","UART fuzz: 10 000 random/binary bytes at 500 B/s during operation: no crash, every output frame valid, telemetry >= 95 % delivered","0 invalid frames, >=95/100 telemetry","valid=1347 invalid=0 telemetry=100 dropped=0 rx_errors=1245 misses=0",PASS
+TC-S12,System,"R04","CRIT alert latency over 40 randomised trials (3 mm noise, 1 % spikes, random phase): worst case <= 250 ms","max <= 250 ms","min 46 / mean 79 / p95 112 / max 120 ms",PASS
+TC-S13,System,"R05,R06","Cold boot: display configured and first valid telemetry frame <= 500 ms after init","<= 500 ms","display 1 ms, telemetry 11 ms",PASS
