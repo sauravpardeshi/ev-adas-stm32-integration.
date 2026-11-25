@@ -1,0 +1,24 @@
+# EV Dashboard & ADAS Warning System: Integration and System Testing
+
+Final internship task: integration of UART, I2C, SPI, ADC and ADAS modules
+into one STM32F103 firmware, with a full test campaign.
+
+**Report:** [report/EV_ADAS_Integration_Test_Report.pdf](report/EV_ADAS_Integration_Test_Report.pdf)
+
+## Results
+- 49 automated tests (22 unit, 14 integration, 13 system): all pass
+- Alert latency: 120 ms worst case (limit 250 ms)
+- 10-minute soak: 0 deadline misses, 0 dropped frames
+
+## Run the tests
+    make VARIANT=final run
+
+Requires GCC and make. Results are written to `out/results_final.csv`.
+
+## Folder layout
+- `src/`, `include/`: firmware
+- `port/hal_sim.c`: simulated hardware (software-in-the-loop)
+- `tests/`: unit, integration and system tests
+
+## Author
+Saurav Pardeshi
